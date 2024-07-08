@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
+    //required: true
   },
   posts: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -27,6 +28,15 @@ const userSchema = new mongoose.Schema({
   fullname: {
     type: String,
     required: true
+  },
+  profileimage: {
+    type: String
+  },
+  resetPasswordToken: {
+    type: String,
+  },
+  resetPasswordExpires: {
+    type: Date,
   }
 });
 

@@ -4,13 +4,30 @@ const createError = require('http-errors');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
-const app = express();
+//const app = express();
 const flash = require("connect-flash");
+const bcrypt = require('bcrypt');
+const LocalStrategy = require('passport-local').Strategy;
 
 const indexRouter = require('./routes/index');
 const userModel = require('./routes/users');
+
+const app = express();
+
+// Connect to MongoDB
+mongoose.connect('mongodb://127.0.0.1:27017/newapp', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true // Added to handle deprecation warning
+});
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function () {
+    console.log('Connected to MongoDB');
+});
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -52,6 +69,14 @@ passport.deserializeUser(function (id, done) {
         });
 });
 
+// Middleware to make user available in templates
+app.use(function (req, res, next) {
+    res.locals.currentUser = req.user;
+    res.locals.error = req.flash('error');
+    res.locals.success = req.flash('success');
+    next();
+});
+
 app.use('/', indexRouter);
 
 app.use(function (req, res, next) {
@@ -65,7 +90,6 @@ app.use(function (err, req, res, next) {
     res.status(err.status || 500);
     res.render('error');
 });
-
 
 // Start the server
 const PORT = 3000;

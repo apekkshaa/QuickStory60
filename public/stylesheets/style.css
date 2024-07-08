@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
 * {
   margin: 0;
   padding: 0;
@@ -5,26 +6,40 @@
   font-family: "Helvetica";
 }
 body {
-  background-color: #dadada;
+  background-color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+  position: relative;
 }
 .container {
-  background-color: rgb(247, 247, 247);
+  background-color: #F8F4EC;
   width: 480px;
-  position: absolute;
+  position: relative;
+  z-index: 10;
   margin: auto;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%,-50%);
+  margin-right: 60%;
   border-radius: 10px;
   padding: 30px;
-  box-shadow: 2px 2px 3px -1px rgba(0, 0, 0, 0.5);
+  box-shadow: 0px 0px 28px 0px #FF9BD2;
 }
 .content {
   width: 56%;
   margin: auto; 
   text-align: center;
 }
- 
+
+.forgot-password{
+  color: #402B3A;
+  text-decoration: none;
+}
+
+.forgot-password:hover{
+  color: #D63484 ;
+}
+
 .img1{
   width: 70px;
   position: relative;
@@ -73,7 +88,7 @@ h4 {
 }
 
 .int {
-  background-color: #000000;
+  background-color: #D63484;
   margin: 10px 0px;
   color: white;
   font-size: 16px;
@@ -153,4 +168,232 @@ hr {
   color: #f30d19;
   text-transform: capitalize;
   margin: 7px 0;
+}
+
+/* Popup Container */
+.popup {
+    display: none;
+    position: fixed;
+    z-index: 20;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.4);
+    padding-top: 60px;
+}
+
+/* Popup Content */
+.popup-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 400px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+/* Close Button */
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+section {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  flex-wrap: wrap;
+  overflow: hidden;
+  z-index: 1;
+}
+
+section::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(#000, #FF9BD2, #000);
+  animation: animate 5s linear infinite;
+}
+
+@keyframes animate {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+section span {
+  position: relative;
+  display: block;
+  width: calc(6.25vw - 2px);
+  height: calc(6.25vw - 2px);
+  background: #000;
+  z-index: 2;
+  transition: 1.5s;
+}
+
+section span:hover {
+  background: #FF9BD2;
+  transition: 0s;
+}
+
+@media (max-width: 900px) {
+  section span {
+    width: calc(10vw - 2px);
+    height: calc(10vw - 2px);
+  }
+}
+
+@media (max-width: 600px) {
+  section span {
+    width: calc(20vw - 2px);
+    height: calc(20vw - 2px);
+  }
+}
+
+h2.quick-story {
+  position: absolute;
+  bottom: 58%;
+  width: 100%;
+  text-align: center;
+  font-size: calc(1rem + 8vmin); 
+  font-family: "Outfit", sans-serif;
+  text-transform: uppercase;
+  z-index: 20;
+  color: #F8F4EC;
+  margin-left: 40%;
+  margin-top: 30%;
+  opacity: 0;
+  animation: fadeInH2 1.5s ease forwards;
+}
+
+@keyframes fadeInH2 {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* CAPTURE SHARE CONNECT container */
+.capture-share-connect {
+  position: absolute;
+  top: 56%;
+  left: 70%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 20;
+}
+
+/* Words styling */
+.word {
+  display: block;
+  font-size: calc(1rem + 4vmin);
+  font-family: "Outfit", sans-serif;
+  text-transform: uppercase;
+  color: #F8F4EC;
+  opacity: 0;
+  animation-duration: 0.8s;
+  animation-timing-function: cubic-bezier(0.68, -0.6, 0.32, 1.6);
+  animation-fill-mode: forwards;
+  font-weight: bold;
+}
+
+/* Animation delay for each word */
+.word.capture {
+  animation-name: popInCapture;
+  animation-delay: 1s; /* Delay for 2 seconds after QuickStory60 */
+}
+
+.word.share {
+  animation-name: popInShare;
+  animation-delay: 1.5s; /* Delay for 0.5 second after CAPTURE */
+}
+
+.word.connect {
+  animation-name: popInConnect;
+  animation-delay: 2s; /* Delay for 0.5 second after SHARE */
+}
+
+/* Keyframes for bounce pop-in animation */
+@keyframes popInCapture {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  60% {
+    transform: scale(1.4);
+  }
+  75% {
+    transform: scale(0.9);
+  }
+  90% {
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes popInShare {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  60% {
+    transform: scale(1.4);
+  }
+  75% {
+    transform: scale(0.9);
+  }
+  90% {
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes popInConnect {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  60% {
+    transform: scale(1.4);
+  }
+  75% {
+    transform: scale(0.9);
+  }
+  90% {
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

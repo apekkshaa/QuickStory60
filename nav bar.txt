@@ -1,0 +1,7 @@
+navigation bar
+
+<div class="w-full px-10 py-3 flex justify-between bg-zinc-800 text-white">
+    <h3>QuickStory60</h3>
+    <div class="flex gap-10 items-center">
+    <a href="/">Profile</a><a href="#">Feed</a><a href="/logout">Logout</a>
+</div>

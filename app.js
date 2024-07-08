@@ -1,19 +1,32 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var expressSession = require("express-session");
-var passport = require('passport');
+const express = require('express');
+const path = require('path');
+const createError = require('http-errors');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const session = require('express-session');
+const passport = require('passport');
+//const app = express();
 const flash = require("connect-flash");
+const bcrypt = require('bcrypt');
+const LocalStrategy = require('passport-local').Strategy;
+const indexRouter = require('./routes/index');
+const userModel = require('./routes/users');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-//const passport = require('passport');
+const app = express();
 
-var app = express();
+mongoose.connect('mongodb://127.0.0.1:27017/newapp', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true
+});
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function () {
+  console.log('Connected to MongoDB');
+});
 
-// view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
@@ -21,31 +34,44 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.urlencoded({ extended: false }));
 
-//app.use(bodyParser.urlencoded({ extended: false }));
-app.use(flash());
-app.use(expressSession({
+//app.use(flash());
+app.use(session({
+  secret: 'hey hey hey',
   resave: false,
   saveUninitialized: false,
-  secret: "hey hey hey"
 }));
+
+app.use(flash());
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.serializeUser(usersRouter.serializeUser());
-passport.deserializeUser(usersRouter.deserializeUser());
+app.use((req, res, next) => {
+  res.locals.error = req.flash('error');
+  res.locals.success = req.flash('success');
+  next();
+});
 
-/*app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));*/
+passport.use(new LocalStrategy(userModel.authenticate()));
+
+passport.serializeUser(function (user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function (id, done) {
+  userModel.findById(id)
+    .then(user => {
+      done(null, user);
+    })
+    .catch(err => {
+      done(err, null);
+    });
+});
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 
 app.use(function (req, res, next) {
   next(createError(404));
@@ -55,9 +81,14 @@ app.use(function (err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-
   res.status(err.status || 500);
   res.render('error');
+});
+
+// Start the server
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
 
 module.exports = app;
