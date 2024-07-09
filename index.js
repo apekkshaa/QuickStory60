@@ -19,16 +19,16 @@ const app = express();
 //Connect to mongodb atlas
 require('dotenv').config();
 const uri = process.env.ATLAS_URI;
-mongoose.connect('mongodb://127.0.0.1:27017/newapp', {
+mongoose.connect(uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex: true // Added to handle deprecation warning
-});
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function () {
-    console.log('Connected to MongoDB');
-});
+}).then(() => {
+    console.log('Connected to MongoDB Atlas');
+})
+    .catch(err => {
+        console.error('Connection error:', err);
+    });
+
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
