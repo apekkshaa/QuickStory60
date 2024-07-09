@@ -19,13 +19,13 @@ const app = express();
 // Connect to MongoDB Atlas
 require('dotenv').config();
 const uri = process.env.ATLAS_URI;
-mongoose.connect(uri).then(() => {
-    console.log('Connected to MongoDB Atlas');
-}).catch(err => {
-    console.error('Connection error:', err);
-});
-
-
+mongoose.connect(uri)
+    .then(() => {
+        console.log('Connected to MongoDB Atlas');
+    })
+    .catch(err => {
+        console.error('Connection error:', err);
+    });
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
