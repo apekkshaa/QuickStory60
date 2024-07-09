@@ -133,7 +133,7 @@ router.post("/register", function (req, res, next) {
     passport.authenticate("local")(req, res, function () {
       console.log('Authentication successful');
       console.log('User authenticated after registration:', req.isAuthenticated());
-      res.redirect("/profile");
+      res.redirect("/feed");
     });
   }).catch(function (err) {
     console.log('Error during registration:', err);
