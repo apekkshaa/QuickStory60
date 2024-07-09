@@ -11,13 +11,14 @@ const passport = require('passport');
 const flash = require("connect-flash");
 const bcrypt = require('bcrypt');
 const LocalStrategy = require('passport-local').Strategy;
-
 const indexRouter = require('./routes/index');
 const userModel = require('./routes/users');
 
 const app = express();
 
-// Connect to MongoDB
+//Connect to mongodb atlas
+require('dotenv').config();
+const uri = process.env.ATLAS_URI;
 mongoose.connect('mongodb://127.0.0.1:27017/newapp', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
