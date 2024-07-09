@@ -5,7 +5,7 @@ const postModel = require('./posts');
 const passport = require('passport');
 const { uploadVideo, uploadImage } = require("./multer");
 const nodemailer = require('nodemailer');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
 const localStrategy = require("passport-local");
