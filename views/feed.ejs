@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/stylesheets/feed.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
 </head>
-<!-- Google tag (gtag.js) -->
+<!-- Google tag (gtag.js) 
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-WWCR6LY8B9"></script>
 <script>
     window.dataLayer = window.dataLayer || [];
@@ -16,7 +16,7 @@
     gtag('js', new Date());
 
     gtag('config', 'G-WWCR6LY8B9');
-</script>
+</script>-->
 
 <body>
     <!-- Nav Bar-->
@@ -27,11 +27,17 @@
             </a>
             <a href="/feed" class="nav-link home-link">Home</a>
         </div>
+
+        <form class="search-container d-flex" action="/search" method="get">
+            <i class="ri-search-line search-icon"></i>
+            <input class="form-control me-2 search-input" type="text" placeholder="Search" name="username" required>
+            <button class="search-btn btn-outline-light" type="submit">Search</button>
+        </form>
+
         <div class="nav-links">
             <a href="/profile" class="nav-link profile-link">Profile</a>
             <a href="/logout" class="nav-link">Logout</a>
         </div>
-    </div>
     </div>
 
     <!-- posts -->
@@ -47,13 +53,18 @@
                             Your browser does not support the video tag.
                         </video>
                         <div class="card-body">
-                            <!-- Card contenthere -->
-                            <h5 class="card-title">
-                                <%= post.imageText %>
-                            </h5>
+                            <!-- Card content here -->
+                            <div class="card-title-container">
+                                <h5 class="card-title">
+                                    <%= post.imageText %>
+                                </h5>
+                                <div class="like-container">
+                                    <i class="ri-heart-fill" id="like-icon-<%= post._id %>"></i>
+                                    <span class="like-count" id="like-count-<%= post._id %>">0</span>
+                                </div>
+                            </div>
                             <p class="card-text">Posted by: <%= post.user.username %>
                             </p>
-
                         </div>
                     </div>
                     <% }); %>
@@ -63,8 +74,63 @@
         </div>
     </div>
 
+    <!--Like button-->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const likeIcons = document.querySelectorAll('.ri-heart-fill');
+
+            likeIcons.forEach(icon => {
+                const postId = icon.id.split('-')[2]; // Get post ID from icon ID
+                const likeCountElement = document.getElementById('like-count-' + postId);
+
+                // Fetch the initial like count and like status
+                fetch(`/posts/${postId}/likes`)
+                    .then(response => response.json())
+                    .then(data => {
+                        likeCountElement.textContent = data.likeCount;
+                        if (data.hasLiked) {
+                            icon.classList.add('liked');
+                        } else {
+                            icon.classList.remove('liked');
+                        }
+                    });
+
+                icon.addEventListener('click', function () {
+                    const hasLiked = this.classList.contains('liked');
+
+                    // Send request to update the like status
+                    fetch(`/posts/${postId}/like`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            likeCountElement.textContent = data.likeCount;
+                            if (data.hasLiked) {
+                                this.classList.add('liked');
+                            } else {
+                                this.classList.remove('liked');
+                            }
+                        });
+                });
+            });
+        });
+    </script>
+
     <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
     <script src="/javascripts/video.js"></script>
+
+    <!-- search text -->
+    <script>
+        $(document).ready(function () {
+            // When the search input is clicked, it gains focus to start typing
+            $('.search-input').on('click', function () {
+                $(this).focus();
+            });
+        });
+    </script>
 </body>
 
 </html>

@@ -1,11 +1,10 @@
 body{
     margin: 0;
     padding: 0;
-    background-color: #F8F4EC;
+    background-color: #000000;
     box-sizing: border-box;
     font-family: "Helvetica";
 }
-
 .navbar-custom {
     height: 80px;
     font-family: 'Helvetica Neue', sans-serif;
@@ -15,6 +14,7 @@ body{
     background-color: #000000;
     color: white;
     padding: 0 20px;
+    border-bottom: 0.9px solid rgb(111, 110, 110);
 }
 
 .navbar-custom * {
@@ -59,6 +59,52 @@ body{
     color: white;
 }
 
+
+.search-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #e3e3e3;
+    margin-right: 10px ;
+}
+
+.search-icon {
+    color: white;
+    margin-right: 10px;
+}
+
+.search-container input.search-input {
+    width: 60%;
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    outline: none;
+    background-color: #e3e3e3;
+    color: white !important;
+}
+
+.search-container input.search-input::placeholder {
+  color: rgb(156, 156, 156);
+}
+
+.search-btn{
+  font-weight: 30px;
+  background-color: #000;
+  color: #F8F4EC;
+  padding: 10px 20px; 
+    border:1px solid #ccc;
+    border-radius: 50px; 
+    outline: none;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    margin-left: 10px;
+}
+
+.search-btn:hover{
+  color: #76ABAE;
+}
+
 .container {
     max-width: calc(100% - 160px);
     margin: 0 auto;
@@ -75,11 +121,12 @@ body{
     background-color: #000000;
     border-radius: 5px;
     padding: 10px;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 0px 28px 0px #000000;
     display: inline-block;
     margin-bottom: 20px;
     width: 100%;
+    color: #ffffff;
+    border-style: outset;
 }
 
 .card-video{
@@ -95,9 +142,60 @@ body{
 }
 
 .card-body {
-    color: #F8F4EC; 
-    border-radius: 3px; 
-    padding: 10px;
+    color: #ffffff; 
+    border-radius: 1px; 
+    padding: 2px;
+}
+
+.card-title-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-title-container i{
+    color: #ffffff;
+    font-size: 1.5em;
+    transition: color 0.3s;
+}
+
+.like-container {
+    display: flex;
+    align-items: center;
+    gap: 5px; 
+}
+
+.like-container i {
+    font-size: 1.5em; 
+    color: #ffffff; 
+    transition: color 0.3s; 
+    cursor: pointer; 
+}
+
+.like-container i:hover {
+    color: #76ABAE; 
+}
+
+.like-count {
+    font-size: 1em;
+    color: #ffffff; 
+}
+
+.ri-heart-fill.liked {
+    color: red;
+}
+
+
+.card-title{
+    font-size: 1.2em;
+    text-align: left;
+}
+
+.card-text{
+    margin-bottom: 10px;
+    font-size: 0.8em;
+    color: #76ABAE;
+    text-align: center;
 }
 
 .img1 {
@@ -140,7 +238,7 @@ body{
 }
 
 .nav-link.home-link:hover, .nav-link.profile-link:hover, .nav-link:hover{
-    color: #D63484;
+    color: #76ABAE;
 }
 
 .error {

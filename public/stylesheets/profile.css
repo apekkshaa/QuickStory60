@@ -1,10 +1,10 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #F8F4EC;
+    background-color: #000;
     margin: 0;
     padding: 0;
   }
-
+  
   .navbar-custom {
   height: 80px;
   font-family: 'Helvetica Neue', sans-serif;
@@ -14,10 +14,11 @@ body {
   background-color: #000000;
   color: white; 
   padding: 0 20px;
+  border-bottom: 0.9px solid rgb(111, 110, 110);
 }
 
 .nav-link:hover{
-color: #D63484;
+color: #76ABAE;
 }
 
 .navbar-custom * {
@@ -68,6 +69,49 @@ color: #D63484;
     padding: 20px;
   }
 
+  .search-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #e3e3e3;
+}
+
+.search-icon {
+    color: white;
+    margin-right: 10px;
+}
+
+.search-container input.search-input {
+    width: 60%;
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    outline: none;
+    background-color: #e3e3e3;
+    color: white !important;
+}
+
+.search-container input.search-input::placeholder {
+  color: rgb(156, 156, 156);
+}
+
+.search-btn{
+  font-weight: 30px;
+  background-color: #000;
+  color: #F8F4EC;
+  padding: 10px 20px; 
+    border:1px solid #ccc;
+    border-radius: 50px; 
+    outline: none;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.search-btn:hover{
+  color: #76ABAE;
+}
+
  /* .flex{
     display: flex;
     flex-wrap: wrap;
@@ -91,6 +135,7 @@ color: #D63484;
   display: inline-block;
     margin-bottom: 20px;
     width: 100%;
+    border: 1px solid #ccc;
 }
 
 .card-video{
@@ -98,13 +143,14 @@ color: #D63484;
   height: auto;
   border-radius: 5px;
 }
+
+
   
   .cardbox {
-    background-color: #F8F4EC;
+    background-color: #000000;
     border-radius: 5px;
     padding: 10px;
     text-align: center;
-   /*box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);*/
     margin-bottom: 20px;
     min-height: 200px;
   }
@@ -116,6 +162,11 @@ color: #D63484;
     overflow: hidden;
     margin: 0 auto 20px;
     position: relative;
+    background-color: #ffffff;
+  }
+
+  .position-relative{
+    margin-top: 20px;
   }
   
   .profile-picture img {
@@ -141,12 +192,12 @@ color: #D63484;
   .name {
     font-size: 24px;
     margin: 0;
-    color: #000;
+    color: #ffffff;
   }
   
   .username {
     font-size: 18px;
-    color: #000;
+    color: #ffffff;
     margin: 10px 0;
   }
   
@@ -170,13 +221,14 @@ color: #D63484;
     background-color: #262626;
   }
 
-  .btn{
-    background-color: #000;
-    color: #F8F4EC;
+  .btn:hover{
+    background-color: #ffffff;
+    color: #000000;
+
   }
 
-  .btn:hover{
-    background-color: #D63484;
+  .btn{
+    background-color: #76ABAE;
     color: #000;
   }
 
@@ -192,6 +244,49 @@ color: #D63484;
       padding: 10px;
 }
 
+.card-title-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title-container i{
+  color: #ffffff;
+  font-size: 1.5em;
+  transition: color 0.3s;
+}
+
+.like-container {
+  display: flex;
+  align-items: center;
+  gap: 5px; 
+}
+
+.like-container i {
+  font-size: 1.5em; 
+  color: #ffffff; 
+  transition: color 0.3s; 
+  cursor: pointer; 
+}
+
+.like-container i:hover {
+  color: #76ABAE; 
+}
+
+.like-count {
+  font-size: 1em;
+  color: #ffffff; 
+}
+
+.ri-heart-fill.liked {
+  color: red;
+}
+
+.card-title{
+  font-size: 1.2em;
+  text-align: left;
+  margin: 0;
+}
 .img1{
   width: 70px;
   margin-left: 10px;
@@ -248,7 +343,7 @@ color: #D63484;
 }
 
 .edit-post:hover, .delete-post:hover{
-  color: #D63484;
+  color: #76ABAE;
 }
 
 /* Responsive styles */
@@ -315,7 +410,7 @@ color: #D63484;
 }
 
 #toggleVisibility:checked {
-  background: #D63484;
+  background: #76ABAE;
 }
 
 #toggleVisibility::before {

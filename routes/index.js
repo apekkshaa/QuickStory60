@@ -7,20 +7,84 @@ const { uploadVideo, uploadImage } = require("./multer");
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const ffmpeg = require('fluent-ffmpeg');
 
 const localStrategy = require("passport-local");
 passport.use(new localStrategy(userModel.authenticate()));
 
 /* home page. */
 router.get('/', function (req, res, next) {
-  console.log('GET /');
+  console.log('GET landing page');
   res.render('index', { title: 'Express' });
+});
+
+router.get('/signup', function (req, res, next) {
+  res.render('signup');
 });
 
 router.get('/login', function (req, res, next) {
   console.log('GET / login');
   console.log(req.flash("error"));
   res.render('login', { error: res.locals.error });
+});
+
+// routes/index.js
+router.get('/search', async (req, res) => {
+  const username = req.query.username;
+
+  try {
+    const user = await userModel.findOne({ username: username });
+
+    if (!user) {
+      req.flash('error', 'User not found');
+      return res.redirect('/feed');
+    }
+
+    res.redirect(`/profile/${user._id}`);
+  } catch (err) {
+    console.error('Error during search:', err);
+    req.flash('error', 'An error occurred during the search');
+    res.redirect('/feed');
+  }
+});
+
+// routes/index.js
+router.get('/profile/:id', isAuthenticated, async function (req, res, next) {
+  console.log('GET /profile/:id');
+  try {
+    const userId = req.params.id;
+    const user = await userModel.findById(userId).populate('posts');
+
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    const loggedInUser = req.user; // Get the logged-in user
+
+    // Render the profile page with both user and loggedInUser data
+    res.render('profile', { user, loggedInUser });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
+});
+
+// Route to view another user's profile
+router.get('/profile/:username', async (req, res) => {
+  try {
+    const loggedInUser = req.user;
+    const user = await userModel.findOne({ username: req.params.username });
+
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    const isOwnProfile = loggedInUser.username === user.username;
+
+    res.render('profile', { user, isOwnProfile });
+  } catch (err) {
+    res.status(500).send('Server error');
+  }
 });
 
 router.get('/feed', isAuthenticated, async function (req, res, next) {
@@ -57,11 +121,16 @@ router.post('/upload', isAuthenticated, uploadVideo.single("file"), async functi
   }
 });
 
+// Route to view the logged-in user's profile
 router.get('/profile', isAuthenticated, async function (req, res, next) {
   console.log('GET /profile');
-  const user = await userModel.findById(req.session.passport.user).populate("posts");
-  console.log(user);
-  res.render('profile', { user });
+  try {
+    const user = await userModel.findById(req.user._id).populate('posts');
+    res.render('profile', { user, loggedInUser: req.user });
+  } catch (err) {
+    console.error('Error fetching user profile:', err);
+    res.status(500).send('Server Error');
+  }
 });
 
 // POST edit post
@@ -107,8 +176,59 @@ router.delete('/posts/:id/delete', isAuthenticated, async function (req, res, ne
   }
 });
 
+// Route to get the like count and user like status for a specific post
+router.get('/posts/:id/likes', isAuthenticated, async (req, res) => {
+  try {
+    const post = await postModel.findById(req.params.id);
+    if (!post) {
+      return res.status(404).send('Post not found');
+    }
+
+    // Ensure likes is defined
+    post.likes = post.likes || [];
+
+    const hasLiked = post.likes.includes(req.user._id);
+    res.json({ likeCount: post.likeCount, hasLiked });
+  } catch (err) {
+    console.error('Error fetching like data:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Route to like/unlike a post
+router.post('/posts/:id/like', isAuthenticated, async (req, res) => {
+  try {
+    const post = await postModel.findById(req.params.id);
+    if (!post) {
+      return res.status(404).send('Post not found');
+    }
+
+    // Ensure likes is defined
+    post.likes = post.likes || [];
+
+    const userId = req.user._id;
+    const hasLiked = post.likes.includes(userId);
+
+    if (hasLiked) {
+      // Unlike the post
+      post.likes = post.likes.filter(id => !id.equals(userId));
+      post.likeCount -= 1;
+    } else {
+      // Like the post
+      post.likes.push(userId);
+      post.likeCount += 1;
+    }
+
+    await post.save();
+    res.json({ likeCount: post.likeCount, hasLiked: !hasLiked });
+  } catch (err) {
+    console.error('Error updating like status:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post('/fileupload', isAuthenticated, uploadImage.single("picture"), async function (req, res, next) {
-  console.log('GET /fileupload');
+  console.log('post /fileupload');
   try {
     if (!req.file) {
       throw new Error('No file selected for upload.');
@@ -137,7 +257,7 @@ router.post("/register", function (req, res, next) {
     });
   }).catch(function (err) {
     console.log('Error during registration:', err);
-    res.redirect('/');
+    res.redirect('/signup');
   });
 });
 
@@ -153,7 +273,7 @@ router.get("/logout", function (req, res) {
   console.log('GET /logout');
   req.logout(function (err) {
     if (err) { return next(err); }
-    res.redirect('/');
+    res.redirect('/login');
   });
 });
 
@@ -173,7 +293,7 @@ router.post('/forgot', async (req, res) => {
     const user = await userModel.findOne({ email });
     if (!user) {
       req.flash('error', 'No account with that email address exists.');
-      return res.redirect('/');
+      return res.redirect('/login');
     }
 
     // Generate a token and set expiration
@@ -196,20 +316,20 @@ router.post('/forgot', async (req, res) => {
       to: user.email,
       from: 'apeksharajput05503@gmail.com',
       subject: 'QuickStory60 Password Reset',
-      text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
-                         Please click on the following link, or paste this into your browser to complete the process:\n\n
-                         http://${req.headers.host}/reset/${token}\n\n
-                         If you did not request this, please ignore this email and your password will remain unchanged.\n`
+      text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n
+      Please click on the following link, or paste this into your browser to complete the process:\n
+      http://${req.headers.host}/reset/${token}\n\
+      If you did not request this, please ignore this email and your password will remain unchanged.\n`
     };
 
     await transporter.sendMail(mailOptions);
 
     req.flash('success', `An email has been sent to ${user.email} with further instructions.`);
-    res.redirect('/');
+    res.redirect('/login');
   } catch (error) {
     console.error('Error processing forgot password request:', error);
     req.flash('error', 'Error processing your request.');
-    res.redirect('/');
+    res.redirect('/login');
   }
 });
 
@@ -223,17 +343,16 @@ router.get('/reset/:token', async (req, res) => {
 
     if (!user) {
       req.flash('error', 'Password reset token is invalid or has expired.');
-      return res.redirect('/');
+      return res.redirect('/login');
     }
 
     res.render('reset', { token: req.params.token });
   } catch (error) {
     console.error('Error finding user for password reset:', error);
     req.flash('error', 'Error finding user for password reset.');
-    res.redirect('/');
+    res.redirect('/login');
   }
 });
-
 
 // Route to handle the reset password form submission
 router.post('/reset/:token', async (req, res) => {
@@ -245,7 +364,7 @@ router.post('/reset/:token', async (req, res) => {
 
     if (!user) {
       req.flash('error', 'Password reset token is invalid or has expired.');
-      return res.redirect('/');
+      return res.redirect('/login');
     }
 
     if (req.body.password === req.body.confirmPassword) {
@@ -265,7 +384,7 @@ router.post('/reset/:token', async (req, res) => {
   } catch (error) {
     console.error('Error resetting password:', error);
     req.flash('error', 'Error resetting your password.');
-    res.redirect('/');
+    res.redirect('/login');
   }
 });
 
