@@ -17,6 +17,15 @@ body{
     border-bottom: 0.9px solid rgb(111, 110, 110);
 }
 
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
 .navbar-custom * {
     background-color: #000000 !important;
 }
@@ -185,7 +194,6 @@ body{
     color: red;
 }
 
-
 .card-title{
     font-size: 1.2em;
     text-align: left;
@@ -249,6 +257,50 @@ body{
 }
 
 /* Responsiv Design */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        position: absolute;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        background-color: #000000;
+        border-top: 1px solid rgb(111, 110, 110);
+    }
+
+    .nav-links.nav-links-visible {
+        display: flex;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .search-container {
+        width: 100%;
+        margin-right: 0;
+        padding: 10px;
+        background-color: #e3e3e3;
+    }
+
+    .search-container input.search-input {
+        width: 80%;
+    }
+
+    .navbar-custom {
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .navbar-custom .d-flex.align-items-center.gap-2 {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
 @media (max-width: 1200px) {
     .grid {
         column-count: 4;
