@@ -22,7 +22,7 @@ body{
     background: none;
     border: none;
     color: white;
-    font-size: 1.5rem;
+    font-size: 24px;
     cursor: pointer;
 }
 
@@ -95,23 +95,6 @@ body{
 
 .search-container input.search-input::placeholder {
   color: rgb(156, 156, 156);
-}
-
-.search-btn{
-  font-weight: 30px;
-  background-color: #000;
-  color: #F8F4EC;
-  padding: 10px 20px; 
-    border:1px solid #ccc;
-    border-radius: 50px; 
-    outline: none;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-    margin-left: 10px;
-}
-
-.search-btn:hover{
-  color: #76ABAE;
 }
 
 .container {
@@ -224,6 +207,15 @@ body{
     background-color: #000000;
 }
 
+.nav-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.nav-links-visible {
+    display: flex !important;
+}
+
 .nav-link {
     color: white;
     text-decoration: none;
@@ -258,47 +250,48 @@ body{
 
 /* Responsiv Design */
 @media (max-width: 768px) {
-    .nav-links {
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        position: absolute;
-        top: 80px;
-        left: 0;
+    .search-container input.search-input {
         width: 100%;
-        background-color: #000000;
-        border-top: 1px solid rgb(111, 110, 110);
     }
 
-    .nav-links.nav-links-visible {
-        display: flex;
+    .grid {
+        column-count: 1;
     }
 
     .menu-toggle {
         display: block;
+        margin-left: auto;
     }
 
-    .search-container {
+    .menu-toggle:hover{
+        color: #76ABAE;
+    }
+
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        align-items: flex-start;
         width: 100%;
-        margin-right: 0;
         padding: 10px;
-        background-color: #e3e3e3;
+        background-color: #000000;
+        position: absolute;
+        top: 80px;
+        left: 0;
+        z-index: 999;
     }
 
-    .search-container input.search-input {
-        width: 80%;
+    .nav-links-visible {
+        display: flex;
     }
 
-    .navbar-custom {
-        flex-wrap: wrap;
-        justify-content: space-between;
+    .nav-link {
+        margin: 10px 0;
     }
 
-    .navbar-custom .d-flex.align-items-center.gap-2 {
-        width: 100%;
-        justify-content: space-between;
+    .home-link{
+        margin-right: 20px;
     }
+    
 }
 
 @media (max-width: 1200px) {
@@ -310,12 +303,6 @@ body{
 @media (max-width: 992px) {
     .grid {
         column-count: 3;
-    }
-}
-
-@media (max-width: 768px) {
-    .grid {
-        column-count: 2;
     }
 }
 

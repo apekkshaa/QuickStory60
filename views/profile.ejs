@@ -28,15 +28,13 @@
             <a href="/feed" class="logo-container">
                 <img src="/images/NAVQS.PNG" alt="pin logo" class="img1">
             </a>
-            <a href="/feed" class="nav-link">Home</a>
+            <a href="/feed" class="nav-link home-link">Home</a>
         </div>
 
         <form class="search-container d-flex" action="/search" method="get">
             <i class="ri-search-line search-icon"></i>
             <input class="form-control me-2 search-input" type="text" placeholder="Search" name="username" required>
-            <button class="search-btn btn-outline-dark" type="submit">Search</button>
         </form>
-
         <a href="/logout" class="nav-link">Logout</a>
     </div>
 
@@ -222,6 +220,11 @@
                     // When the search input is clicked, it gains focus to start typing
                     $('.search-input').on('click', function () {
                         $(this).focus();
+                    });
+
+                    // Toggle navigation menu on mobile view
+                    $('.menu-toggle').on('click', function () {
+                        $('.nav-links').toggleClass('nav-links-visible');
                     });
                 });
             </script>
