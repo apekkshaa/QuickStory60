@@ -217,75 +217,6 @@
                 });
             </script>
 
-            <!-- Edit and Delete Post -->
-            <script>
-                document.querySelectorAll('.edit-post').forEach((button) => {
-                    button.addEventListener('click', function () {
-                        const postId = this.getAttribute('data-post-id');
-                        // Fetch post data to pre-fill the edit modal
-                        fetch(`/posts/${postId}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                // Open modal and pre-fill with fetched data
-                                const editCaptionInput = document.querySelector('#editFileCaption');
-                                editCaptionInput.value = data.caption;
-
-                                // Handle the save button click
-                                const editSubmitBtn = document.querySelector('#editSubmitBtn');
-                                editSubmitBtn.onclick = function () {
-                                    const newCaption = editCaptionInput.value;
-                                    fetch(`/posts/${postId}`, {
-                                        method: 'PUT',
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                        },
-                                        body: JSON.stringify({ caption: newCaption }),
-                                    })
-                                        .then(response => response.json())
-                                        .then(data => {
-                                            // Handle success, if needed
-                                            console.log('Success:', data);
-                                            window.location.reload(); // Example: reload page after successful submission
-                                        })
-                                        .catch(error => {
-                                            console.error('Error:', error);
-                                            // Display error message
-                                            const editErrorContainer = document.querySelector('#editErrorContainer');
-                                            editErrorContainer.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
-                                        });
-                                };
-
-                                // Show the edit modal
-                                const editPostModal = new bootstrap.Modal(document.getElementById('editPostModal'));
-                                editPostModal.show();
-                            })
-                            .catch(error => {
-                                console.error('Error fetching post data:', error);
-                            });
-                    });
-                });
-
-                document.querySelectorAll('.delete-post').forEach((button) => {
-                    button.addEventListener('click', function () {
-                        const postId = this.getAttribute('data-post-id');
-                        fetch(`/posts/${postId}`, {
-                            method: 'DELETE',
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                // Handle success, if needed
-                                console.log('Success:', data);
-                                window.location.reload(); // Example: reload page after successful deletion
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                // Display error message
-                                alert('Failed to delete post');
-                            });
-                    });
-                });
-            </script>
-
             <!-- search text -->
             <script>
                 $(document).ready(function () {
@@ -296,18 +227,22 @@
                 });
             </script>
 
-            <!--like button-->
+            <!-- Add these scripts to handle like, edit, and delete actions -->
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
+                    // Handle like functionality
                     const likeIcons = document.querySelectorAll('.ri-heart-fill');
-
                     likeIcons.forEach(icon => {
-                        const postId = icon.id.split('-')[2]; // Get post ID from icon ID
+                        const postId = icon.id.split('-')[2];
                         const likeCountElement = document.getElementById('like-count-' + postId);
 
-                        // Fetch the initial like count and like status
                         fetch(`/posts/${postId}/likes`)
-                            .then(response => response.json())
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json();
+                            })
                             .then(data => {
                                 likeCountElement.textContent = data.likeCount;
                                 if (data.hasLiked) {
@@ -318,16 +253,18 @@
                             });
 
                         icon.addEventListener('click', function () {
-                            const hasLiked = this.classList.contains('liked');
-
-                            // Send request to update the like status
                             fetch(`/posts/${postId}/like`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json'
                                 }
                             })
-                                .then(response => response.json())
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Network response was not ok');
+                                    }
+                                    return response.json();
+                                })
                                 .then(data => {
                                     likeCountElement.textContent = data.likeCount;
                                     if (data.hasLiked) {
@@ -335,6 +272,84 @@
                                     } else {
                                         this.classList.remove('liked');
                                     }
+                                });
+                        });
+                    });
+
+                    // Handle post edit functionality
+                    document.querySelectorAll('.edit-post').forEach((button) => {
+                        button.addEventListener('click', function () {
+                            const postId = this.getAttribute('data-post-id');
+                            fetch(`/posts/${postId}`)
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Network response was not ok');
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    const editCaptionInput = document.querySelector('#editFileCaption');
+                                    editCaptionInput.value = data.imageText; // Assuming 'imageText' is the caption field
+
+                                    const editSubmitBtn = document.querySelector('#editSubmitBtn');
+                                    editSubmitBtn.onclick = function () {
+                                        const newCaption = editCaptionInput.value;
+                                        fetch(`/update-caption/${postId}`, {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                            },
+                                            body: JSON.stringify({ caption: newCaption }), // Send the new caption
+                                        })
+                                            .then(response => {
+                                                if (!response.ok) {
+                                                    throw new Error('Network response was not ok');
+                                                }
+                                                return response.json();
+                                            })
+                                            .then(data => {
+                                                console.log('Success:', data);
+                                                window.location.reload(); // Reload page after successful caption update
+                                            })
+                                            .catch(error => {
+                                                console.error('Error:', error);
+                                                // Display error message
+                                                const editErrorContainer = document.querySelector('#editErrorContainer');
+                                                editErrorContainer.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+                                            });
+                                    };
+
+                                    // Show the edit post modal
+                                    const editPostModal = new bootstrap.Modal(document.getElementById('editPostModal'));
+                                    editPostModal.show();
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                });
+                        });
+                    });
+
+                    // Handle post delete functionality
+                    document.querySelectorAll('.delete-post').forEach((button) => {
+                        button.addEventListener('click', function () {
+                            const postId = this.getAttribute('data-post-id');
+                            fetch(`/posts/${postId}`, {
+                                method: 'DELETE',
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Network response was not ok');
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    // Handle success, if needed
+                                    console.log('Success:', data);
+                                    window.location.reload(); // Example: reload page after successful deletion
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    alert('Failed to delete post');
                                 });
                         });
                     });

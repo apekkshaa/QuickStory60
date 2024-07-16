@@ -133,46 +133,53 @@ router.get('/profile', isAuthenticated, async function (req, res, next) {
   }
 });
 
-// POST edit post
-router.post('/posts/:id/edit', isAuthenticated, async function (req, res, next) {
+// Get a specific post
+router.get('/posts/:id', isAuthenticated, async (req, res) => {
   try {
-    const postId = req.params.id;
-    const { imageText } = req.body;
-
-    // Find the post by ID
-    const post = await postModel.findById(postId);
+    const post = await postModel.findById(req.params.id);
     if (!post) {
-      throw new Error('Post not found');
+      return res.status(404).json({ message: 'Post not found' });
     }
-
-    // Update the post
-    post.imageText = imageText;
-    await post.save();
-
-    res.json({ message: 'Post updated successfully' });
+    res.json(post);
   } catch (err) {
-    console.error('Error updating post:', err);
-    res.status(500).json({ error: err.message });
+    console.error('Error fetching post:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-// POST delete post
-router.delete('/posts/:id/delete', isAuthenticated, async function (req, res, next) {
+// Delete a post
+router.delete('/posts/:id', isAuthenticated, async (req, res) => {
   try {
-    const postId = req.params.id;
-
-    // Find the post by ID and delete it
-    await postModel.findByIdAndDelete(postId);
-
-    // Remove post reference from user's posts array
-    const user = await userModel.findById(req.session.passport.user);
-    user.posts = user.posts.filter(id => id.toString() !== postId);
-    await user.save();
-
+    const post = await postModel.findByIdAndDelete(req.params.id);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
     res.json({ message: 'Post deleted successfully' });
   } catch (err) {
     console.error('Error deleting post:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Route to handle caption update
+router.post('/update-caption/:id', isAuthenticated, async (req, res) => {
+  const postId = req.params.id;
+  const newCaption = req.body.caption;
+
+  try {
+    // Find the post by ID and update the caption
+    const post = await postModel.findById(postId);
+    if (!post) {
+      return res.status(404).send({ message: 'Post not found' });
+    }
+
+    post.imageText = newCaption; // Assuming 'imageText' is the field for captions
+    await post.save();
+
+    res.status(200).send({ message: 'Caption updated successfully' });
+  } catch (error) {
+    console.error('Error updating caption:', error);
+    res.status(500).send({ message: 'Internal server error' });
   }
 });
 
@@ -192,6 +199,19 @@ router.get('/posts/:id/likes', isAuthenticated, async (req, res) => {
   } catch (err) {
     console.error('Error fetching like data:', err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+router.put('/posts/:id', isAuthenticated, async (req, res) => {
+  try {
+    const post = await postModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+    res.json(post);
+  } catch (err) {
+    console.error('Error updating post:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
