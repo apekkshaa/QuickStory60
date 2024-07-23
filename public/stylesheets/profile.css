@@ -347,6 +347,26 @@ color: #76ABAE;
   margin-left: auto;
 }
 
+.btn-toggle-visibility {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #76ABAE; /* Matching the "Create Post" button background color */
+  color: #000;
+  text-decoration: none;
+  border-radius: 5px;
+  border: none;
+  font-size: 16px;
+  transition: background-color 0.3s, color 0.3s;
+  margin-top: 5px; /* Add spacing if needed */
+  margin-bottom: 10px;
+}
+
+.btn-toggle-visibility:hover {
+  background-color: #ffffff; /* Matching the hover state of "Create Post" */
+  color: #000000; /* Matching the hover text color */
+}
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .search-container input.search-input {

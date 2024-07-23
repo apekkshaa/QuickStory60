@@ -10,6 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
     <link href="https://fonts.cdnfonts.com/css/helvetica-neue-55" rel="stylesheet">
     <link rel="stylesheet" href="/stylesheets/profile.css">
+    <link rel="icon" type="image/x-icon" href="/images/NAVQS.PNG">
 </head>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-WWCR6LY8B9"></script>
@@ -69,6 +70,12 @@
                     </h3>
 
                     <% if (user._id.toString()===loggedInUser._id.toString()) { %>
+                        <form action="/toggle-visibility" method="POST">
+                            <button type="submit" class="btn-toggle-visibility ">
+                                <%= currentUser.profileVisibility==='public' ? 'Set Profile to Private'
+                                    : 'Set Profile to Public' %>
+                            </button>
+                        </form>
                         <button type="button" class="btn btn-dark" data-bs-toggle="modal"
                             data-bs-target="#createPostModal">
                             Create Post
@@ -229,7 +236,7 @@
                 });
             </script>
 
-            <!-- Add these scripts to handle like, edit, and delete actions -->
+            <!-- scripts to handle like, edit, and delete actions -->
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
                     // Handle like functionality

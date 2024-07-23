@@ -60,9 +60,16 @@ router.get('/profile/:id', isAuthenticated, async function (req, res, next) {
     }
 
     const loggedInUser = req.user; // Get the logged-in user
+    const isOwnProfile = loggedInUser._id.equals(userId);
+    const isProfilePrivate = user.profileVisibility === 'private';
 
-    // Render the profile page with both user and loggedInUser data
-    res.render('profile', { user, loggedInUser });
+    if (isProfilePrivate && !isOwnProfile) {
+      // If profile is private and the logged-in user is not the owner
+      res.render('privateProfile', { user, loggedInUser });
+    } else {
+      // Render the public profile
+      res.render('profile', { user, loggedInUser });
+    }
   } catch (err) {
     console.error(err);
     res.status(500).send('Server Error');
@@ -87,15 +94,35 @@ router.get('/profile/:username', async (req, res) => {
   }
 });
 
-router.get('/feed', isAuthenticated, async function (req, res, next) {
-  console.log('GET /feed');
+// Route to toggle profile visibility
+router.post('/toggle-visibility', async (req, res) => {
   try {
-    const allPosts = await postModel.find().populate('user');
-    const shuffledPosts = allPosts.sort(() => Math.random() - 0.5);
-    res.render('feed', { posts: shuffledPosts });
+    const userId = req.user._id;
+    const user = await userModel.findById(userId);
+    if (!user) {
+      req.flash('error', 'User not found.');
+      return res.redirect('/profile');
+    }
+    user.profileVisibility = user.profileVisibility === 'public' ? 'private' : 'public';
+    await user.save();
+    req.flash('success', 'Profile visibility updated.');
+    res.redirect('/profile');
   } catch (err) {
-    console.error('Error fetching posts:', err);
-    res.status(500).send('Internal Server Error');
+    req.flash('error', 'Could not update profile visibility.');
+    res.redirect('/profile');
+  }
+});
+
+
+// Update feed route to filter posts based on profile visibility
+router.get('/feed', async (req, res) => {
+  try {
+    const posts = await postModel.find({}).populate('user').exec();
+    const visiblePosts = posts.filter(post => post.user.profileVisibility === 'public');
+    res.render('feed', { posts: visiblePosts });
+  } catch (err) {
+    req.flash('error', 'Something went wrong.');
+    res.redirect('/');
   }
 });
 
@@ -167,7 +194,6 @@ router.post('/update-caption/:id', isAuthenticated, async (req, res) => {
   const newCaption = req.body.caption;
 
   try {
-    // Find the post by ID and update the caption
     const post = await postModel.findById(postId);
     if (!post) {
       return res.status(404).send({ message: 'Post not found' });
@@ -184,24 +210,6 @@ router.post('/update-caption/:id', isAuthenticated, async (req, res) => {
 });
 
 // Route to get the like count and user like status for a specific post
-router.get('/posts/:id/likes', isAuthenticated, async (req, res) => {
-  try {
-    const post = await postModel.findById(req.params.id);
-    if (!post) {
-      return res.status(404).send('Post not found');
-    }
-
-    // Ensure likes is defined
-    post.likes = post.likes || [];
-
-    const hasLiked = post.likes.includes(req.user._id);
-    res.json({ likeCount: post.likeCount, hasLiked });
-  } catch (err) {
-    console.error('Error fetching like data:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
 router.put('/posts/:id', isAuthenticated, async (req, res) => {
   try {
     const post = await postModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -212,6 +220,21 @@ router.put('/posts/:id', isAuthenticated, async (req, res) => {
   } catch (err) {
     console.error('Error updating post:', err);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.get('/posts/:id/likes', isAuthenticated, async (req, res) => {
+  try {
+    const post = await postModel.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+    const userId = req.user._id;
+    const hasLiked = post.likes.includes(userId);
+    res.json({ likeCount: post.likeCount, hasLiked });
+  } catch (err) {
+    console.error('Error fetching like status:', err);
+    res.status(500).json({ error: err.message });
   }
 });
 

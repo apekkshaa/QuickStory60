@@ -37,6 +37,11 @@ const userSchema = new mongoose.Schema({
   },
   resetPasswordExpires: {
     type: Date,
+  },
+  profileVisibility: {
+    type: String,
+    enum: ['public', 'private'],
+    default: 'public'
   }
 });
 

@@ -7,6 +7,7 @@
     <title>Feed Page</title>
     <link rel="stylesheet" href="/stylesheets/feed.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="/images/NAVQS.PNG">
 </head>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-WWCR6LY8B9"></script>
@@ -21,19 +22,24 @@
 <body>
     <!-- Nav Bar-->
     <div class="navbar-custom">
-        <button class="menu-toggle">&#9776;</i></button>
+        <button class="menu-toggle">&#9776;</button>
         <div class="d-flex align-items-center gap-2">
             <a href="/feed" class="logo-container">
                 <img src="/images/NAVQS.PNG" alt="pin logo" class="img1">
             </a>
             <a href="/feed" class="nav-link home-link">Home</a>
-
         </div>
 
         <form class="search-container d-flex" action="/search" method="get">
             <i class="ri-search-line search-icon"></i>
             <input class="form-control me-2 search-input" type="text" placeholder="Search" name="username" required>
         </form>
+
+        <div class="notif">
+            <a href="#" class="nav-link notification-link">
+                <i class="ri-notification-2-fill"></i>
+            </a>
+        </div>
 
         <div class="nav-links">
             <a href="/profile" class="nav-link profile-link">Profile</a>
@@ -46,42 +52,54 @@
         <div class="grid">
             <% if (posts && posts.length> 0) { %>
                 <% posts.forEach(function(post, index) { %>
-                    <div class="card">
-                        <!-- Video Player -->
-                        <video class="card-video" id="video-<%= post._id %>" controls muted>
-                            <source src="/images/uploads/<%= post.image %>" type="video/mp4" class="card-img-top"
-                                alt="...">
-                            Your browser does not support the video tag.
-                        </video>
-                        <div class="card-body">
-                            <!-- Card content here -->
-                            <div class="card-title-container">
-                                <h5 class="card-title">
-                                    <%= post.imageText %>
-                                </h5>
-                                <div class="like-container">
-                                    <i class="ri-heart-fill" id="like-icon-<%= post._id %>"></i>
-                                    <span class="like-count" id="like-count-<%= post._id %>">0</span>
+                    <% if (post.user.profileVisibility==='public' ) { %>
+                        <div class="card">
+                            <!-- Video Player -->
+                            <video class="card-video" id="video-<%= post._id %>" controls muted>
+                                <source src="/images/uploads/<%= post.image %>" type="video/mp4" class="card-img-top">
+                                Your browser does not support the video tag.
+                            </video>
+                            <div class="card-body">
+                                <!-- Card content here -->
+                                <div class="card-title-container">
+                                    <h5 class="card-title">
+                                        <%= post.imageText %>
+                                    </h5>
+                                    <div class="like-container">
+                                        <i class="ri-heart-fill" id="like-icon-<%= post._id %>"></i>
+                                        <span class="like-count" id="like-count-<%= post._id %>">0</span>
+                                    </div>
                                 </div>
+                                <p class="card-text">Posted by: <%= post.user.username %>
+                                </p>
                             </div>
-                            <p class="card-text">Posted by: <%= post.user.username %>
-                            </p>
                         </div>
-                    </div>
-                    <% }); %>
-                        <% } else { %>
-                            <p>No posts found.</p>
-                            <% } %>
+                        <% } %>
+                            <% }); %>
+                                <% } else { %>
+                                    <p>No posts found.</p>
+                                    <% } %>
         </div>
     </div>
 
-    <!--Like button-->
+    <!-- Notification Panel -->
+    <div id="notification-panel" class="notification-panel">
+        <button id="close-panel" class="close-panel">&times;</button>
+        <h2>Notifications</h2>
+        <!-- Add your notifications content here -->
+        <div id="notification-container">
+            <p>No new notifications.</p>
+        </div>
+
+    </div>
+
+    <!-- Like button -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const likeIcons = document.querySelectorAll('.ri-heart-fill');
 
             likeIcons.forEach(icon => {
-                const postId = icon.id.split('-')[2]; // Get post ID from icon ID
+                const postId = icon.id.split('-')[2];
                 const likeCountElement = document.getElementById('like-count-' + postId);
 
                 // Fetch the initial like count and like status
@@ -114,6 +132,28 @@
                             } else {
                                 this.classList.remove('liked');
                             }
+
+                            // Update notifications
+                            fetch('/notifications')
+                                .then(response => response.json())
+                                .then(notifications => {
+                                    const notificationPanel = document.getElementById('notification-panel');
+                                    const notificationContainer = notificationPanel.querySelector('p');
+
+                                    // Clear existing notifications
+                                    notificationContainer.innerHTML = '';
+
+                                    // Add new notifications
+                                    notifications.forEach(notification => {
+                                        const notificationElement = document.createElement('div');
+                                        notificationElement.classList.add('notification', notification.isRead ? 'read' : 'unread');
+                                        notificationElement.innerHTML = `
+                                                        <p>${notification.message}</p>
+                                                        <small>${new Date(notification.createdAt).toLocaleString()}</small>
+                                                    `;
+                                        notificationContainer.appendChild(notificationElement);
+                                    });
+                                });
                         });
                 });
             });
@@ -123,19 +163,101 @@
     <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
     <script src="/javascripts/video.js"></script>
 
-    <!-- search text -->
+    <!-- Search text -->
     <script>
         $(document).ready(function () {
-            // When the search input is clicked, it gains focus to start typing
             $('.search-input').on('click', function () {
                 $(this).focus();
             });
-            // Toggle navigation menu on mobile view
+            // Toggle navigation menu on mobile
             $('.menu-toggle').on('click', function () {
                 $('.nav-links').toggleClass('nav-links-visible');
             });
         });
     </script>
+
+    <!--Notification-->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const notificationButton = document.querySelector('.notification-link');
+            const notificationPanel = document.getElementById('notification-panel');
+            const notificationContainer = document.getElementById('notification-container');
+
+            // Function to fetch and display notifications
+            // Function to fetch and display notifications
+            function fetchNotifications() {
+                fetch('/notifications')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(notifications => {
+                        console.log('Fetched notifications:', notifications); // Log fetched notifications
+                        // Clear existing notifications
+                        notificationContainer.innerHTML = '';
+
+                        // Add new notifications
+                        if (notifications.length > 0) {
+                            notifications.forEach(notification => {
+                                const notificationElement = document.createElement('div');
+                                notificationElement.classList.add('notification', notification.isRead ? 'read' : 'unread');
+                                notificationElement.innerHTML = `
+                        <p>${notification.message}</p>
+                        <small>${new Date(notification.createdAt).toLocaleString()}</small>
+                    `;
+                                notificationContainer.appendChild(notificationElement);
+                            });
+                        } else {
+                            notificationContainer.innerHTML = '<p>No new notifications.</p>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching notifications:', error);
+                        notificationContainer.innerHTML = '<p>No new notifications.</p>';
+                    });
+            }
+
+
+            function togglePanel() {
+                if (notificationPanel.classList.contains('active')) {
+                    // Slide out
+                    notificationPanel.classList.remove('active');
+                    // Delay hiding the panel to allow slide-out animation to complete
+                    setTimeout(() => {
+                        notificationPanel.style.display = 'none'; // Hide the panel after sliding out
+                    }, 300); // Match the duration of the transition
+                } else {
+                    // Slide in
+                    notificationPanel.style.display = 'block'; // Ensure the panel is displayed
+                    // Force a reflow to restart the animation
+                    notificationPanel.offsetHeight; // Trigger reflow
+                    notificationPanel.classList.add('active');
+
+                    // Fetch and display notifications when opening the panel
+                    fetchNotifications();
+                }
+            }
+
+            // Toggle notification panel
+            notificationButton.addEventListener('click', function (event) {
+                event.preventDefault(); // Prevent default anchor behavior
+                togglePanel();
+            });
+
+            // Close notification panel
+            const closePanelButton = document.getElementById('close-panel');
+            closePanelButton.addEventListener('click', function () {
+                notificationPanel.classList.remove('active');
+                // Delay hiding the panel to allow slide-out animation to complete
+                setTimeout(() => {
+                    notificationPanel.style.display = 'none'; // Hide the panel after sliding out
+                }, 300); // Match the duration of the transition
+            });
+        });
+    </script>
+
 </body>
 
 </html>
