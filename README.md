@@ -1,6 +1,6 @@
 # QuickStory60
 
-QuickStory60 is a personal virtual video diary that allows users to capture and share their stories in short videos. This platform is designed to help users document their daily lives, share memorable moments, and keep a personal digital archive of their experiences.
+QuickStory60 is a personal virtual video diary that allows users to share their stories in short videos. This platform is designed to help users document their daily lives, share memorable moments, and keep a personal digital archive of their experiences.
 
 ## Table of Contents
 
